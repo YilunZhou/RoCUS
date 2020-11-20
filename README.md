@@ -1,6 +1,6 @@
 # RoCUS: Robot Controller Understanding via Sampling
 
-This is the code repository for [_RoCUS: Robot Controller Understanding via Sampling_](paper/paper.pdf) by Yilun Zhou, Serena Booth, Nadia Figueroa, and Julie Shah, implementing the two problem domains studied in the paper.
+This is the code repository for [_RoCUS: Robot Controller Understanding via Sampling_](paper/RoCUS_Full_Paper.pdf) by Yilun Zhou, Serena Booth, Nadia Figueroa, and Julie Shah, implementing the two problem domains studied in the paper.
 
 ## Paper, Supplemental, and Video  
 [paper/RoCUS_Full_Paper.pdf](paper/RoCUS_Full_Paper.pdf) has the full paper including supplementary materials. 
