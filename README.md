@@ -2,7 +2,7 @@
 
 This is the code repository for [_RoCUS: Robot Controller Understanding via Sampling_](paper/paper.pdf) by Yilun Zhou, Serena Booth, Nadia Figueroa, and Julie Shah, implementing the two problem domains studied in the paper.
 
-`RoCUS_Full_Paper.pdf` has a full copy of the text with the supplemental material, and `RoCUS_Supplemental.pdf` is exclusively supplemental material.
+`paper/RoCUS_Full_Paper.pdf` has a full copy of the text with the supplemental material, and `paper/RoCUS_Supplemental.pdf` is exclusively supplemental material.
 
 * In `2d_navigation`, a robot needs to navigate from the starting to the target position while avoiding irregularly shaped obstacles. Three controllers are implemented: rapidly-exploring random tree, dynamical system, and deep imitation learning.
 * In `7dof_arm_reaching`, a 7 degree-of-freedom (DoF) Franka Panda robot arm mounted on the side of a table needs to reach to a specific location on the table while avoiding a T-shaped divider. Three controllers are implemented: rapidly-exploring random tree, dynamical system, and deep reinforcement learning.
