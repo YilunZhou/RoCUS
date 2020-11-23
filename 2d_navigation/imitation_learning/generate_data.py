@@ -47,7 +47,7 @@ def generate_data(fn, N):
 		for x, y, lid, ang in zip(xs[:-1], ys[:-1], lidar, angle):
 			data = np.concatenate([[x, y], lid, [ang], arena.points.flatten()])
 			all_data.append(data)
-	all_data = np.array(all_data)
+	all_data = np.array(all_data).astype('float32')
 	np.savez_compressed(fn, data=all_data)
 
 if __name__ == '__main__':
