@@ -36,7 +36,7 @@ def generate_data(fn, N):
 	arena = RBFArena()
 	rrt = RRT(control_res=0.2)
 	if os.path.isfile(fn):
-		input(f'Data file {fn} already exists! Press Enter to overwrite, or Ctrl-C to abort...')
+		input(f'Data file {fn} already exists! Press Enter to overwrite, or Ctrl-C to abort... ')
 	all_data = []
 	for _ in trange(N):
 		xs, ys = generate_single(arena, rrt)

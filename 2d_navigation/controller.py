@@ -71,7 +71,7 @@ class ILController(Controller):
 		self.STD = model_data['STD']
 		self.N_BINS = model_data['N_BINS']
 		self.policy = BinClassifier(18, self.N_BINS)
-		model_data = torch.load(model_fn)
+		model_data = torch.load(model_fn, map_location='cpu')
 		self.policy.load_state_dict(model_data['model'])
 		self.BIN_RES = 2 * np.pi / self.N_BINS
 		self.BIN_LOW = - np.pi

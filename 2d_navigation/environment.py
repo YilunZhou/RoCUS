@@ -92,7 +92,7 @@ class RBFArena():
         return np.array([reading[th_idx] for th_idx in range(num_readings)])
 
     def lidar_fast(self, p, num_readings=16, max_range=1, dist_incr=0.002, theta=0):
-        is_free_func = lambda xs, ys: self.interpolator.ev(ys, xs) > 0.1
+        is_free_func = lambda xs, ys: self.interpolator.ev(ys, xs) < 0.9
         return self.lidar_sensor(is_free_func, p, num_readings, max_range, dist_incr, theta)
 
     def lidar_exact(self, p, num_readings=16, max_range=1, dist_incr=0.002, theta=0):
