@@ -139,4 +139,3 @@ class RRTController(Controller):
 
 	def log_prior(self, kernel):
 		return 0
-	

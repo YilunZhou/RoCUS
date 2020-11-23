@@ -1,6 +1,7 @@
 
 import sys
 import numpy as np
+from scipy.signal import convolve2d
 
 def neighbor_idxs(i, j, H, W):
 	i_s = set([i, min(i + 1, H - 1), max(i - 1, 0)])
@@ -8,15 +9,6 @@ def neighbor_idxs(i, j, H, W):
 	neighbors = set([(i, j) for i in i_s for j in j_s])
 	neighbors.remove((i, j))
 	return neighbors
-
-def enlarge(occ_grid):
-	new_occ_grid = np.zeros(occ_grid.shape)
-	H, W = occ_grid.shape
-	for i in range(H):
-		for j in range(W):
-			if any(occ_grid[ni, nj] == 1 for ni, nj in neighbor_idxs(i, j, H, W)):
-				new_occ_grid[i, j] = 1
-	return new_occ_grid
 
 def find_connected_components(occ_grid):
 	occ_grid = occ_grid.copy()
@@ -45,57 +37,7 @@ def find_single_cc(occ_grid, i, j):
 	assert len(found) == len(set(found))
 	return found
 
-def get_polygon(points, point_res, center=None, n_bins=100):
-	points = np.array(points)
-	if center is None:
-		center = points.mean(axis=0)
-	points = points - center
-	xs, ys = points[:, 0], points[:, 1]
-	four_corner_angles = np.stack([np.arctan2(ys - point_res / 2, xs - point_res / 2), 
-									np.arctan2(ys - point_res / 2, xs + point_res / 2), 
-									np.arctan2(ys + point_res / 2, xs - point_res / 2), 
-									np.arctan2(ys + point_res / 2, xs + point_res / 2)], axis=1)
-
-
-	four_corner_angles1 = four_corner_angles.copy()
-	for i, a in enumerate(four_corner_angles1):
-		if np.any(a > np.pi * 2 / 3) or np.any(a < - np.pi * 2 / 3):
-			four_corner_angles1[i] = [-10, -10, -10, -10]
-
-	four_corner_angles2 = four_corner_angles.copy()
-	four_corner_angles2[four_corner_angles2 < 0] = four_corner_angles2[four_corner_angles2 < 0] + 2 * np.pi
-	for i, a in enumerate(four_corner_angles2):
-		if np.any(a < np.pi / 3) or np.any(a > np.pi * 5 / 3):
-			four_corner_angles2[i] = [-10, -10, -10, -10]
-
-	four_corner_angles3 = four_corner_angles.copy()
-	four_corner_angles3 = four_corner_angles3 + 2 * np.pi
-	for i, a in enumerate(four_corner_angles3):
-		if np.any(a < 4 * np.pi / 3) or np.any(a > np.pi * 8 / 3):
-			four_corner_angles3[i] = [-10, -10, -10, -10]
-	
-	angles_low1 = four_corner_angles1.min(axis=1)
-	angles_high1 = four_corner_angles1.max(axis=1)
-	angles_low2 = four_corner_angles2.min(axis=1)
-	angles_high2 = four_corner_angles2.max(axis=1)
-	angles_low3 = four_corner_angles3.min(axis=1)
-	angles_high3 = four_corner_angles3.max(axis=1)
-	angle_res = 2 * np.pi / n_bins
-	target_angles = np.array(range(n_bins)) * angle_res
-	dists = np.zeros(n_bins)
-	for i, a in enumerate(target_angles):
-		all_idxs = np.logical_and(angles_low1 <= a, angles_high1 >= a) + \
-				   np.logical_and(angles_low2 <= a, angles_high2 >= a) + \
-				   np.logical_and(angles_low3 <= a, angles_high3 >= a)
-		all_idxs = (all_idxs >= 1)
-		if all_idxs.sum() == 0:
-			continue
-		use_points = points[all_idxs]
-		dists[i] = np.linalg.norm(use_points, axis=1).max()
-	dists[dists < 0.05] = 0.05
-	return center, dists, target_angles
-
-class GammaFromPolygon():
+class GammaFromPolygonOrig():
 	def __init__(self, dists, center):
 		self.dists = dists
 		self.n_bins = len(dists)
@@ -125,6 +67,60 @@ class GammaFromPolygon():
 		idx2 = (idx1 + 1) % self.n_bins
 		d1, d2 = self.dists[idx1], self.dists[idx2]
 		a1, a2 = self.angle_res * idx1, self.angle_res * idx2
+		m = np.array([np.cos(a1) * d1, np.sin(a1) * d1])
+		n = np.array([np.cos(a2) * d2, np.sin(a2) * d2])
+		grad = np.array([ (n[1] - m[1]) / (n[1] * m[0] - n[0] * m[1]), 
+						 -(n[0] - m[0]) / (n[1] * m[0] - n[0] * m[1])])
+		return grad / (np.linalg.norm(grad) + sys.float_info.epsilon)
+
+class GammaFromPolygon():
+	def __init__(self, bdy_points, center, max_nbins=50):
+		self.bdy_points = bdy_points
+		self.center = center
+		n_bins = min(int(len(bdy_points) / 3), max_nbins)
+		angle_res = 2 * np.pi / n_bins
+		dists = [None] * n_bins
+		for point in bdy_points:
+			angle = np.arctan2(point[1] - center[1], point[0] - center[0])
+			dist = np.linalg.norm(point - center)
+			if angle < 0:
+				angle += 2 * np.pi
+			bin_idx = int(angle / angle_res)
+			if dists[bin_idx] is None or dist > dists[bin_idx]:
+				dists[bin_idx] = dist
+		angles = np.linspace(0, 2 * np.pi, n_bins + 1)[:-1] + angle_res / 2
+		angle_dists = [ad for ad in zip(angles, dists) if ad[1] is not None]
+		angles, dists = zip(*angle_dists)
+		self.angles = np.array(angles)
+		self.dists = np.array(dists)
+
+	def __call__(self, pt):
+		pt = np.array(pt) - self.center
+		ang = np.arctan2(pt[1], pt[0])
+		if ang < 0:
+			ang = ang + 2 * np.pi
+		idx2 = (self.angles < ang).sum() % len(self.angles)
+		idx1 = idx2 - 1
+		if idx1 == -1:
+			idx1 = len(self.angles) - 1
+		d1, d2 = self.dists[idx1], self.dists[idx2]
+		a1, a2 = self.angles[idx1], self.angles[idx2]
+		m = np.array([np.cos(a1) * d1, np.sin(a1) * d1])
+		n = np.array([np.cos(a2) * d2, np.sin(a2) * d2])
+		t = (pt[0] * (n[1] - m[1]) - pt[1] * (n[0] - m[0])) / (n[1] * m[0] - n[0] * m[1])
+		return t
+
+	def grad(self, pt):
+		pt = np.array(pt) - self.center
+		ang = np.arctan2(pt[1], pt[0])
+		if ang < 0:
+			ang = ang + 2 * np.pi
+		idx2 = (self.angles < ang).sum() % len(self.angles)
+		idx1 = idx2 - 1
+		if idx1 == -1:
+			idx1 = len(self.angles) - 1
+		d1, d2 = self.dists[idx1], self.dists[idx2]
+		a1, a2 = self.angles[idx1], self.angles[idx2]
 		m = np.array([np.cos(a1) * d1, np.sin(a1) * d1])
 		n = np.array([np.cos(a2) * d2, np.sin(a2) * d2])
 		grad = np.array([ (n[1] - m[1]) / (n[1] * m[0] - n[0] * m[1]), 
@@ -225,21 +221,22 @@ class Modulator():
 	def set_arena(self, arena, target=[1, 1], mod_margin=0.01):
 		self.target = np.array(target)
 		self.mod_margin = mod_margin
-		new_occ_grid = arena.occ_grid
-		for _ in range(2):
-			new_occ_grid = enlarge(new_occ_grid)
-		ccs = find_connected_components(new_occ_grid)
-		grid_res = arena.grid_res
-		grid_bd = arena.grid_bd
+		occ_grid = convolve2d(1 - arena.occ_grid.copy(), np.ones((3, 3)), mode='same') < 1
+		ccs = find_connected_components(occ_grid)
 		res = arena.grid_res
 		bd = arena.grid_bd
 		grid_xs, grid_ys = np.linspace(-bd, bd, res), np.linspace(-bd, bd, res)
 		self.gammas = []
-		for cc in ccs:
-			cc_xs = grid_xs[cc[:, 1]]
-			cc_ys = grid_ys[cc[:, 0]]
-			center, dists, angles = get_polygon(np.stack([cc_xs, cc_ys], axis=1), grid_xs[1] - grid_xs[0])
-			gamma = GammaFromPolygon(dists, center)
+		for i, cc in enumerate(ccs):
+			cc_set = set([tuple(c) for c in cc])
+			bdy = []
+			for x, y in cc_set:
+				if ((x - 1, y) not in cc_set) or ((x + 1, y) not in cc_set) or ((x, y - 1) not in cc_set) or ((x, y + 1) not in cc_set):
+					bdy.append([x, y])
+			bdy = np.array(bdy)
+			cc_points = np.stack([grid_xs[cc[:, 1]], grid_ys[cc[:, 0]]], axis=1)
+			bdy_points = np.stack([grid_xs[bdy[:, 1]], grid_ys[bdy[:, 0]]], axis=1)
+			gamma = GammaFromPolygon(bdy_points, np.mean(cc_points, axis=0))
 			self.gammas.append(gamma)
 
 	def linear_controller(self, x, max_norm=1):
