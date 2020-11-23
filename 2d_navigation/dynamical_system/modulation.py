@@ -3,6 +3,60 @@ import sys
 import numpy as np
 from scipy.signal import convolve2d
 
+class Modulator():
+	def set_arena(self, arena, target=[1, 1], mod_margin=0.01):
+		self.target = np.array(target)
+		self.mod_margin = mod_margin
+		occ_grid = convolve2d(1 - arena.occ_grid.copy(), np.ones((3, 3)), mode='same') < 1
+		ccs = find_connected_components(occ_grid)
+		res = arena.grid_res
+		bd = arena.grid_bd
+		grid_xs, grid_ys = np.linspace(-bd, bd, res), np.linspace(-bd, bd, res)
+		self.gammas = []
+		for i, cc in enumerate(ccs):
+			cc_set = set([tuple(c) for c in cc])
+			bdy = []
+			for x, y in cc_set:
+				if ((x - 1, y) not in cc_set) or ((x + 1, y) not in cc_set) or ((x, y - 1) not in cc_set) or ((x, y + 1) not in cc_set):
+					bdy.append([x, y])
+			bdy = np.array(bdy)
+			cc_points = np.stack([grid_xs[cc[:, 1]], grid_ys[cc[:, 0]]], axis=1)
+			bdy_points = np.stack([grid_xs[bdy[:, 1]], grid_ys[bdy[:, 0]]], axis=1)
+			gamma = GammaFromPolygon(bdy_points, np.mean(cc_points, axis=0))
+			self.gammas.append(gamma)
+
+	def linear_controller(self, x, max_norm=1):
+		x_dot = self.target - x
+		n = np.linalg.norm(x_dot)
+		if n < max_norm:
+			return x_dot
+		else:
+			return x_dot / n * max_norm
+
+	def modulation_HBS(self, pt, orig_ds, margin=0.01):
+		epsilon = sys.float_info.epsilon
+		gamma_vals = np.stack([gamma(pt) for gamma in self.gammas])
+		# calculate each individual modulated control
+		x_dot_mods = [get_individual_modulation(pt, orig_ds, gamma, self.mod_margin) for gamma in self.gammas]
+		# calculate weighted average of magnitude
+		ms = np.log(np.maximum(gamma_vals - 1, 0) + epsilon)
+		logprod = ms.sum()
+		bs = np.exp(logprod - ms)
+		weights = bs / bs.sum()
+		x_dot_mags = np.array([np.linalg.norm(d) for d in x_dot_mods])
+		avg_mag = np.dot(weights, x_dot_mags)
+		x_dot_mods = np.array(x_dot_mods).T
+		x_dot_mods[:, x_dot_mags > 0] = x_dot_mods[:, x_dot_mags > 0] / x_dot_mags[x_dot_mags > 0]
+		x_dot = orig_ds / np.linalg.norm(orig_ds)
+		avg_ds_dir = get_weighted_sum(ref_dir=x_dot, dirs=x_dot_mods, weights=weights)
+		x_mod_final = avg_mag * avg_ds_dir
+		return x_mod_final
+
+	def modulate(self, x):
+		orig_ds = self.linear_controller(np.array(x))
+		d = self.modulation_HBS(x, orig_ds)
+		return d
+
 def neighbor_idxs(i, j, H, W):
 	i_s = set([i, min(i + 1, H - 1), max(i - 1, 0)])
 	j_s = set([j, min(j + 1, W - 1), max(j - 1, 0)])
@@ -216,57 +270,3 @@ def get_individual_modulation(pt, orig_ds, gamma, margin=0.01, tangent_scaling_m
 		M = np.matmul(np.matmul(E, D), invE)
 		x_dot_mod = np.matmul(M, orig_ds.reshape(-1, 1)).flatten()
 		return x_dot_mod
-
-class Modulator():
-	def set_arena(self, arena, target=[1, 1], mod_margin=0.01):
-		self.target = np.array(target)
-		self.mod_margin = mod_margin
-		occ_grid = convolve2d(1 - arena.occ_grid.copy(), np.ones((3, 3)), mode='same') < 1
-		ccs = find_connected_components(occ_grid)
-		res = arena.grid_res
-		bd = arena.grid_bd
-		grid_xs, grid_ys = np.linspace(-bd, bd, res), np.linspace(-bd, bd, res)
-		self.gammas = []
-		for i, cc in enumerate(ccs):
-			cc_set = set([tuple(c) for c in cc])
-			bdy = []
-			for x, y in cc_set:
-				if ((x - 1, y) not in cc_set) or ((x + 1, y) not in cc_set) or ((x, y - 1) not in cc_set) or ((x, y + 1) not in cc_set):
-					bdy.append([x, y])
-			bdy = np.array(bdy)
-			cc_points = np.stack([grid_xs[cc[:, 1]], grid_ys[cc[:, 0]]], axis=1)
-			bdy_points = np.stack([grid_xs[bdy[:, 1]], grid_ys[bdy[:, 0]]], axis=1)
-			gamma = GammaFromPolygon(bdy_points, np.mean(cc_points, axis=0))
-			self.gammas.append(gamma)
-
-	def linear_controller(self, x, max_norm=1):
-		x_dot = self.target - x
-		n = np.linalg.norm(x_dot)
-		if n < max_norm:
-			return x_dot
-		else:
-			return x_dot / n * max_norm
-
-	def modulation_HBS(self, pt, orig_ds, margin=0.01):
-		epsilon = sys.float_info.epsilon
-		gamma_vals = np.stack([gamma(pt) for gamma in self.gammas])
-		# calculate each individual modulated control
-		x_dot_mods = [get_individual_modulation(pt, orig_ds, gamma, self.mod_margin) for gamma in self.gammas]
-		# calculate weighted average of magnitude
-		ms = np.log(np.maximum(gamma_vals - 1, 0) + epsilon)
-		logprod = ms.sum()
-		bs = np.exp(logprod - ms)
-		weights = bs / bs.sum()
-		x_dot_mags = np.array([np.linalg.norm(d) for d in x_dot_mods])
-		avg_mag = np.dot(weights, x_dot_mags)
-		x_dot_mods = np.array(x_dot_mods).T
-		x_dot_mods[:, x_dot_mags > 0] = x_dot_mods[:, x_dot_mags > 0] / x_dot_mags[x_dot_mags > 0]
-		x_dot = orig_ds / np.linalg.norm(orig_ds)
-		avg_ds_dir = get_weighted_sum(ref_dir=x_dot, dirs=x_dot_mods, weights=weights)
-		x_mod_final = avg_mag * avg_ds_dir
-		return x_mod_final
-
-	def modulate(self, x):
-		orig_ds = self.linear_controller(np.array(x))
-		d = self.modulation_HBS(x, orig_ds)
-		return d
