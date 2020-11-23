@@ -8,7 +8,7 @@ from kernel import TransitionKernel, RBF2dEnvKernelNormal, RRTKernelNormal
 
 def sample_prior(N, save_fn, env, controller, ek, ck):
     if os.path.isfile(save_fn):
-        input('File already exists. Press Enter to append to the file. Press Ctrl-C to abort...')
+        input('File already exists. Press Enter to append to the file. Press Ctrl-C to abort... ')
         data = pickle.load(open(save_fn, 'rb'))
     else:
         data = []
@@ -22,7 +22,8 @@ def sample_prior(N, save_fn, env, controller, ek, ck):
 
 
 def main():
-    idx = input('Please choose the controller that you want to sample -- 1. DS, 2. IL, 3. RRT: ')
+    idx = input('Please select the controller -- \n1. Dynamical System\n2. Imitation Learning\n3. Rapidly-Exploring Random Tree\n' + 
+                'Enter a number between 1 and 3: ')
     try:
         idx = int(idx)
         assert 1 <= idx <= 3
@@ -46,7 +47,6 @@ def main():
         save_fn = 'samples/rrt_prior.pkl'
     env_kernel = RBF2dEnvKernelNormal()
     sample_prior(2000, save_fn, env, controller, env_kernel, controller_kernel)
-
 
 if __name__ == '__main__':
     main()

@@ -140,6 +140,9 @@ class GammaFromPolygon():
 			if angle < 0:
 				angle += 2 * np.pi
 			bin_idx = int(angle / angle_res)
+			assert bin_idx <= len(dists)
+			if bin_idx == len(dists):
+				bin_idx = 0
 			if dists[bin_idx] is None or dist > dists[bin_idx]:
 				dists[bin_idx] = dist
 		angles = np.linspace(0, 2 * np.pi, n_bins + 1)[:-1] + angle_res / 2

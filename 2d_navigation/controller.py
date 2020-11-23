@@ -40,8 +40,8 @@ class DSController(Controller):
 		if env.enable_lidar is True and not self.warned:
 			print('WARNING: Not turning off lidar on env could be significantly slower')
 			self.warned = True
-		self.modulator.set_arena(env.arena)
 		try:
+			self.modulator.set_arena(env.arena)
 			epsilon = sys.float_info.epsilon
 			done = False
 			s = env.s()[:2]
@@ -54,6 +54,8 @@ class DSController(Controller):
 				traj.append(s)
 			traj = np.array(traj)
 			return traj
+		except KeyboardInterrupt:
+			raise
 		except:
 			traceback.print_exc()
 			return None
@@ -94,6 +96,8 @@ class ILController(Controller):
 					s, _, done, _ = env.step([dx, dy])
 					traj.append(s[:2])
 			return np.array(traj)
+		except KeyboardInterrupt:
+			raise
 		except:
 			traceback.print_exc()
 			return None
@@ -133,6 +137,8 @@ class RRTController(Controller):
 				idx += 1
 				idx = min(idx, len(xys) - 1)
 			return np.array(traj)
+		except KeyboardInterrupt:
+			raise
 		except:
 			traceback.print_exc()
 			return None

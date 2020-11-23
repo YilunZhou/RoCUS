@@ -37,7 +37,7 @@ def sample(N, alpha, prior_file, N_sigma, behavior_func,
     if save is not None:
         assert isinstance(save, str), 'Parameter "save" needs to be a string if not None'
         if os.path.isfile(save):
-            input(f'{save} already exists. Press Enter to overwrite it or press Ctrl-C to abort...')
+            input(f'{save} already exists. Press Enter to overwrite it or press Ctrl-C to abort... ')
 
     def get_behavior(ek, ck):
         env.reset(ek.value)

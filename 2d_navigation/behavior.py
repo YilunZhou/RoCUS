@@ -34,18 +34,18 @@ def smoothness(traj, env=None):
 def avg_jerkiness(traj, env=None):
 	if traj is None or len(traj) < 10 or np.linalg.norm(traj[-1] - [1, 1]) > 0.03:
 		return None, False
-	first_derivative = np.gradient(traj, axis=0)
-	second_derivative = np.gradient(first_derivative, axis=0)
-	third_derivative = np.absolute(np.gradient(second_derivative, axis=0)).sum(axis=1)
-	return np.mean(third_derivative), True
+	velocity = np.gradient(traj, axis=0)
+	acceleration = np.gradient(velocity, axis=0)
+	jerk = np.absolute(np.gradient(acceleration, axis=0)).sum(axis=1)
+	return np.mean(jerk), True
 
 def min_jerkiness(traj, env=None):
 	if traj is None or len(traj) < 10 or np.linalg.norm(traj[-1] - [1, 1]) > 0.03:
 		return None, False
-	first_derivative = np.gradient(traj, axis=0)
-	second_derivative = np.gradient(first_derivative, axis=0)
-	third_derivative = np.absolute(np.gradient(second_derivative, axis=0)).sum(axis=1)
-	return np.min(third_derivative), True
+	velocity = np.gradient(traj, axis=0)
+	acceleration = np.gradient(velocity, axis=0)
+	jerk = np.absolute(np.gradient(acceleration, axis=0)).sum(axis=1)
+	return np.min(jerk), True
 
 def distance(traj, env=None):
 	if traj is None or len(traj) < 3 or np.linalg.norm(traj[-1] - [1, 1]) > 0.03:
@@ -58,7 +58,7 @@ def end_distance(traj, env=None):
 		return None, False
 	return np.linalg.norm(traj[-1] - [1, 1]), True
 
-def center_deviation(traj, env=None):
+def straightline_deviation(traj, env=None):
 	if traj is None or np.linalg.norm(traj[-1] - [1, 1]) > 0.03:
 		return None, False
 	u = np.array([np.sqrt(2) / 2, np.sqrt(2) / 2])

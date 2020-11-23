@@ -15,7 +15,14 @@ The samples will be saved to the `samples/` directory.
 If you wish to implement a custom sampling instance in `run.py`, you need to decorate it with `@register`, similar to existing ones. 
 
 ### Visualization
-To visualize samples, you can run `python visualize_samples.py --prior <prior-file> --posterior <posterior-file>` where both `<prior-file>` and `<posterior-file>` are the `.pkl` files representing samples (i.e. `samples/xxx.pkl`). This script will plot the trajectories and obstacle configurations. 
+To visualize samples, you can run `python visualize_samples.py --prior <prior-file> --posterior <posterior-file> --save-fn <image-file>` where both `<prior-file>` and `<posterior-file>` are the `.pkl` files representing samples (i.e. `samples/xxx.pkl`). This script will plot the trajectories and obstacle configurations. The left panel will show the trajectories. The right panel shows the obstacle distribution: if one of `--prior` and `--posterior` is specified, the obstacle distribution for that is shown; if both are specified, the difference in obstacle distribution is shown, with red color representing regions with higher likelihood of obstacle presence under the posterior than the prior. if `--save-fn` is specified, then the image will be saved to `<image-file>`. 
+
+In addition to to the prior samples, we have also generated DS, IL and RRT posterior samples for minimal straight line deviation behavior, which are stored in the `samples/` directory. Their corresponding visualizations are stored in `figures/` directory, but if you want to re-generate them, you can run
+```sh
+python visualize_samples.py --prior ds_prior.pkl --poseterior ds_min_straightline_deviation.pkl --save-fn figures/ds_min_straightline_deviation.png
+python visualize_samples.py --prior il_prior.pkl --poseterior il_min_straightline_deviation.pkl --save-fn figures/il_min_straightline_deviation.png
+python visualize_samples.py --prior rrt_prior.pkl --poseterior rrt_min_straightline_deviation.pkl --save-fn figures/rrt_min_straightline_deviation.png
+```
 
 ## General Code Structure
 * `environment.py` implements the `RBF2dGymEnv`, which is the environment with a `gym`-like interface. It requires an `RBFArena` for obstacle definition and a `PhysicsSimulator` for simulating non-elastic collision. Both classes are defined in `environment.py`. 
