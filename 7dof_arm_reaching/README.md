@@ -1,10 +1,7 @@
 # RoCUS: Robot Controller Understanding via Sampling
 
-This directory, `7dof_arm_reaching`, contains code defining our DS, RRT, and PPO (RL) models. Before running this code, 
-you will need to first install `pybullet-gym`; see the instructions in `pybullet-gym-rocus/README.md`. 
-
-While our `2d_navigation` code has been cleaned up for relatively user engagement, this arm reaching codebase needs a 
-refactor. We will clean and update this codebase prior to publication.
+## Installing `pybullet-gym-rocus`
+If you haven't, please install `pybullet-gym-rocus` first. See the instructions in [`pybullet-gym-rocus/README.md`](pybullet-gym-rocus/README.md) for more details. 
 
 ## Running the MCMC Sampler
 The main entry point is `run.py`, which contains a list of sampling instances, each implemented as a parameter-free function. This script can be executed via 
@@ -20,6 +17,3 @@ If you wish to implement a custom sampling instance in `run.py`, you need to dec
 * `controller.py` implements controllers (RRT and RL), which relies on functionalities in the respective `<controller>/` folder. 
 * `kernel.py` implements all the kernels, including those on environments (i.e. tasks) and controllers. A kernel keeps track of a random variable, and can change it via `propose()` and `revert()` to be called by the MCMC sampler. They also implement a `sample_prior()` function to sample the random variable from its distribution. All kernels are sub-classes of `TransitionKernel` class, which implements a dummy deterministic kernel with a value of constant 0 (useful for deterministic controllers). 
 * `sampler.py` implements the core sampling functionality, with `sample()` implementing the MH algorithm. This algorithm take two key parameters, `env_kernel` and `controller_kernel`, which are instances of subclasses of the `TransitionKernel` class (defined in `kernel.py`). It is assumed that the controller randomness is independent from that of the environment, i.e. _p(u) = p(u | e)_. 
-
-## Questions?
-Contact us: {yilun, serenabooth, nadiafig, julie_a_shah}@csail.mit.edu. 

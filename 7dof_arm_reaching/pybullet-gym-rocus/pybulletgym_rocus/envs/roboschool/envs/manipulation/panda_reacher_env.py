@@ -1,6 +1,6 @@
-from pybulletgym.envs.roboschool.envs.env_bases import BaseBulletEnv
-from pybulletgym.envs.roboschool.robots.manipulators.panda_reacher import PandaReacher
-from pybulletgym.envs.roboschool.scenes.scene_bases import SingleRobotEmptyScene
+from pybulletgym_rocus.envs.roboschool.envs.env_bases import BaseBulletEnv
+from pybulletgym_rocus.envs.roboschool.robots.manipulators.panda_reacher import PandaReacher
+from pybulletgym_rocus.envs.roboschool.scenes.scene_bases import SingleRobotEmptyScene
 import numpy as np
 
 

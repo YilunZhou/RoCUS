@@ -2,7 +2,7 @@ from gym.envs.registration import register
 
 register(
 	id='PandaReacher-v0',
-	entry_point='pybulletgym.envs.roboschool.envs.manipulation.panda_reacher_env:PandaReacherEnv',
+	entry_point='pybulletgym_rocus.envs.roboschool.envs.manipulation.panda_reacher_env:PandaReacherEnv',
 	max_episode_steps=150,
 	reward_threshold=18.0,
 	)

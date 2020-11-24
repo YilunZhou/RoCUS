@@ -10,7 +10,7 @@ from torch import nn
 from torch.distributions import Normal, LogNormal
 from torch.utils.data import DataLoader
 
-import gym, pybulletgym
+import gym, pybulletgym_rocus
 
 class Memory:
     def __init__(self):
@@ -131,14 +131,11 @@ class PPO:
             cur_cum_reward = r + (self.gamma * cur_cum_reward)
             cum_rewards.append(cur_cum_reward)
         cum_rewards = np.array(cum_rewards[::-1])
-        
         # Normalizing the state value:
         if self.reward_avg:
             cum_rewards = (cum_rewards - cum_rewards.mean()) / (cum_rewards.std() + 1e-5)
-        
         dataset = list(zip(cum_rewards, self.memory.states, self.memory.actions, self.memory.logprobs))
         dataloader = DataLoader(dataset, batch_size=self.batchsize, shuffle=True)
-
         # Optimize policy for K epochs:
         for _ in range(self.K_epochs):
             for cum_rewards, old_states, old_actions, old_logprobs in dataloader:
@@ -193,16 +190,13 @@ def main():
     parser.add_argument('--lr', type=float, default=1e-5)
     parser.add_argument('--batchsize', type=int, default=100)
     parser.add_argument('--device', type=str, default='cuda:0')
-    parser.add_argument('--save-dir', type=str)  # !!!!!
-    parser.add_argument('--env-name', type=str)  # !!!!!
     config = parser.parse_args()
     print(config)
-    assert config.save_dir is not None and config.env_name is not None
 
-    env = gym.make(config.env_name)
-    assert not os.path.isdir(config.save_dir)
-    os.makedirs(config.save_dir)
-    log_file = open(os.path.join(config.save_dir, 'progress.log'), 'w')
+    if os.path.isfile('best.pt') or os.path.isfile('progress.log'):
+        input('"best.pt" and/or "progress.log" already exist. Press Enter to overwrite or Ctrl-C to abort... ')
+    env = gym.make('PandaReacher-v0')
+    log_file = open('progress.log', 'w')
     ppo = PPO(env, **vars(config))
     best_test_R = float('-inf')
     for train_iter in trange(int(config.num_total_episode / config.num_episode_per_train)):
@@ -214,13 +208,13 @@ def main():
             if test_R > best_test_R:
                 torch.save({'actor-critic': ppo.policy.state_dict(), 
                             'optimizer': ppo.optimizer.state_dict(), 
-                            'test_R': test_R, 'config': config}, os.path.join(config.save_dir, 'best.pt'))
+                            'test_R': test_R, 'config': config}, 'best.pt')
                 best_test_R = test_R
                 log_file.write('Saved best model so far\n')
             if (train_iter + 1) % 1000 == 0:
                 torch.save({'actor-critic': ppo.policy.state_dict(), 
                             'optimizer': ppo.optimizer.state_dict(), 
-                            'test_R': test_R, 'config': config}, os.path.join(config.save_dir, f'iter_{train_iter + 1}.pt'))
+                            'test_R': test_R, 'config': config}, f'iter_{train_iter + 1}.pt')
         log_file.flush()
 if __name__ == '__main__':
     main()
