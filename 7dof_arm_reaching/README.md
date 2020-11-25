@@ -22,6 +22,11 @@ To visualize samples, you can run `python visualize_samples.py --prior <prior-fi
 
 In addition to to the prior samples, we have also generated DS, IL and RRT posterior samples for minimal straight line deviation behavior, which are stored in the `samples/` directory. Their corresponding visualizations are stored in `figures/` directory, but if you want to re-generate them, you can run
 ```sh
+python visualize_samples.py --prior samples/ds_original_prior.pkl --posterior samples/ds_original_min_end_distance.pkl --save-fn figures/ds_original_min_end_distance.png
+python visualize_samples.py --prior samples/ds_improved_prior.pkl --posterior samples/ds_improved_min_end_distance.pkl --save-fn figures/ds_improved_min_end_distance.png
+python visualize_samples.py --prior samples/rl_prior.pkl --posterior samples/rl_min_ee_distance.pkl --save-fn figures/rl_min_ee_distance.png
+python visualize_samples.py --prior samples/rrt_prior.pkl --posterior samples/rrt_min_ee_distance.pkl --save-fn figures/rrt_min_ee_distance.png
+python visualize_samples.py --prior samples/rrt_prior.pkl --posterior samples/rrt_max_illegibility.pkl --save-fn figures/rrt_max_illegibility.png
 ```
 
 ## General Code Structure
