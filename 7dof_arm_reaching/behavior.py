@@ -10,7 +10,6 @@ def center_deviation_behavior(traj, env=None):
     avg_dist = (np.linalg.norm(projs - ee_xyz, axis=1)).mean()
     return avg_dist, True
 
-
 def ee_avg_jerk(traj, env=None):
     if traj is None:
         return None, False
@@ -20,7 +19,6 @@ def ee_avg_jerk(traj, env=None):
     third_derivative = np.absolute(np.gradient(second_derivative, axis=0)).sum(axis=1)
     return np.mean(third_derivative), True
 
-
 def ee_distance_behavior(traj, env=None):
     if traj is None:
         return None, False
@@ -28,7 +26,6 @@ def ee_distance_behavior(traj, env=None):
     ee_dxyz = ee_xyz[1:] - ee_xyz[:-1]
     dist = np.linalg.norm(ee_dxyz, axis=1).sum()
     return dist, True
-
 
 def illegibility_behavior(traj, env):
     if traj is None:

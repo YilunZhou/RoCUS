@@ -1,177 +1,71 @@
 import sys, inspect
-from sampler import *
-from behavior import *
-from kernel import *
+
+import behavior
+from environment import PandaEnv
+from sampler import sample
+from controller import DSController, RLController, RRTController
+from kernel import TransitionKernel, ReachingEnvKernelNormal, RRTKernelNormal
 
 if __name__ == '__main__':
     all_instances = dict()
-
 
 def register(instance):
     if __name__ == '__main__':
         all_instances[instance.__name__] = instance
 
+@register
+def ds_original_min_end_distance():
+    name = f'samples/{inspect.currentframe().f_code.co_name}.pkl'
+    samples = sample(N=10000, alpha=0.1, prior_file='samples/ds_original_prior.pkl', N_sigma=1000, 
+                     behavior_func=behavior.ee_distance_behavior, 
+                     env=PandaEnv(), env_kernel=ReachingEnvKernelNormal(),
+                     controller=DSController(typ='original'), controller_kernel=TransitionKernel(),
+                     target_type='match', target_behavior=0, save=name)
 
 @register
-def rl_min_avg_jerk(prior_file='samples/rl_prior.pkl'):
-    print('rl_min_avg_jerk')
-    env = PandaReacherEarlyTerminateEnv()
-    rl_controller = RLController()
-    env_kernel = ReachingEnvKernelNormal()
-    rl_kernel = TransitionKernel()
-    samples = sample(N=10000, alpha=0.1, prior_file=prior_file, env=env, controller=rl_controller,
-                     behavior_func=ee_avg_jerk, env_kernel=env_kernel, controller_kernel=rl_kernel,
-                     target_type='match', target_behavior=0, N_sigma=1000, sigma_override=None)
-    env_samples, controller_samples, trajectories, behaviors = samples
-    pickle.dump(
-        {'env': env_samples, 'controller': controller_samples, 'trajectory': trajectories, 'behavior': behaviors},
-        open('samples/rl_min_avg_jerk.samples.pkl', 'wb'))
-
+def ds_improved_min_end_distance():
+    name = f'samples/{inspect.currentframe().f_code.co_name}.pkl'
+    samples = sample(N=10000, alpha=0.1, prior_file='samples/ds_improved_prior.pkl', N_sigma=1000, 
+                     behavior_func=behavior.ee_distance_behavior, 
+                     env=PandaEnv(), env_kernel=ReachingEnvKernelNormal(),
+                     controller=DSController(typ='improved'), controller_kernel=TransitionKernel(),
+                     target_type='match', target_behavior=0, save=name)
 
 @register
-def rl_min_center_deviation(prior_file='samples/rl_prior.pkl'):
-    print('rl_min_center_deviation')
-    env = PandaReacherEarlyTerminateEnv()
-    rl_controller = RLController()
-    env_kernel = ReachingEnvKernelNormal()
-    rl_kernel = TransitionKernel()
-    samples = sample(N=10000, alpha=0.1, prior_file=prior_file, env=env, controller=rl_controller,
-                     behavior_func=center_deviation_behavior, env_kernel=env_kernel, controller_kernel=rl_kernel,
-                     target_type='match', target_behavior=0, N_sigma=1000, sigma_override=None)
-    env_samples, controller_samples, trajectories, behaviors = samples
-    pickle.dump(
-        {'env': env_samples, 'controller': controller_samples, 'trajectory': trajectories, 'behavior': behaviors},
-        open('samples/rl_min_center_deviation.samples.pkl', 'wb'))
-
+def rl_min_ee_distance():
+    name = f'samples/{inspect.currentframe().f_code.co_name}.pkl'
+    samples = sample(N=10000, alpha=0.1, prior_file='samples/rl_prior.pkl', N_sigma=1000, 
+                     behavior_func=behavior.ee_distance_behavior, 
+                     env=PandaEnv(), env_kernel=ReachingEnvKernelNormal(),
+                     controller=RLController(), controller_kernel=TransitionKernel(),
+                     target_type='match', target_behavior=0, save=name)
 
 @register
-def rrt_min_center_deviation(prior_file='samples/rrt_prior.pkl'):
-    print('rrt_min_center_deviation')
-
-    env = PandaReacherEarlyTerminateEnv()
-    rrt_controller = RRTController()
-    env_kernel = ReachingEnvKernelNormal()
-    rrt_kernel = RRTKernelNormal()
-
-    samples = sample(N=10000, alpha=0.1, prior_file=prior_file, env=env, controller=rrt_controller,
-                     behavior_func=center_deviation_behavior, env_kernel=env_kernel, controller_kernel=rrt_kernel,
-                     target_type='match', target_behavior=0, N_sigma=1000)
-    env_samples, controller_samples, trajectories, behaviors = samples
-    pickle.dump(
-        {'env': env_samples, 'controller': controller_samples, 'trajectory': trajectories, 'behavior': behaviors},
-        open('samples/rrt_min_center_deviation.samples.pkl', 'wb'))
-
+def rl_min_ee_distance():
+    name = f'samples/{inspect.currentframe().f_code.co_name}.pkl'
+    samples = sample(N=10000, alpha=0.1, prior_file='samples/rl_prior.pkl', N_sigma=1000, 
+                     behavior_func=behavior.ee_distance_behavior, 
+                     env=PandaEnv(), env_kernel=ReachingEnvKernelNormal(),
+                     controller=RLController(), controller_kernel=TransitionKernel(),
+                     target_type='match', target_behavior=0, save=name)
 
 @register
-def rrt_min_avg_jerk(prior_file='samples/rrt_prior.pkl'):
-    print('rrt_min_avg_jerk')
-    env = PandaReacherEarlyTerminateEnv()
-    rrt_controller = RRTController()
-    env_kernel = ReachingEnvKernelNormal()
-    rrt_kernel = RRTKernelNormal()
-    samples = sample(N=10000, alpha=0.1, prior_file=prior_file, env=env, controller=rrt_controller,
-                     behavior_func=ee_avg_jerk, env_kernel=env_kernel, controller_kernel=rrt_kernel,
-                     target_type='match', target_behavior=0, N_sigma=1000)
-    env_samples, controller_samples, trajectories, behaviors = samples
-    pickle.dump(
-        {'env': env_samples, 'controller': controller_samples, 'trajectory': trajectories, 'behavior': behaviors},
-        open('samples/rrt_min_avg_jerk.samples.pkl', 'wb'))
-
+def rrt_min_ee_distance():
+    name = f'samples/{inspect.currentframe().f_code.co_name}.pkl'
+    samples = sample(N=10000, alpha=0.1, prior_file='samples/rrt_prior.pkl', N_sigma=1000, 
+                     behavior_func=behavior.ee_distance_behavior, 
+                     env=PandaEnv(), env_kernel=ReachingEnvKernelNormal(),
+                     controller=RRTController(), controller_kernel=RRTKernelNormal(),
+                     target_type='match', target_behavior=0, save=name)
 
 @register
-def rl_min_ee_distance(prior_file='samples/rl_prior.pkl'):
-    print('rrt_min_ee_distance')
-    env = PandaReacherEarlyTerminateEnv()
-    rl_controller = RLController()
-    env_kernel = ReachingEnvKernelNormal()
-    rl_kernel = TransitionKernel()
-    samples = sample(N=10000, alpha=0.1, prior_file=prior_file, env=env, controller=rl_controller,
-                     behavior_func=ee_distance_behavior, env_kernel=env_kernel, controller_kernel=rl_kernel,
-                     target_type='match', target_behavior=0, N_sigma=1000, sigma_override=None)
-    env_samples, controller_samples, trajectories, behaviors = samples
-    pickle.dump(
-        {'env': env_samples, 'controller': controller_samples, 'trajectory': trajectories, 'behavior': behaviors},
-        open('samples/rl_min_ee_distance.samples.pkl', 'wb'))
-
-
-@register
-def rrt_min_ee_distance(prior_file='samples/rrt_prior.pkl'):
-    print('rrt_min_ee_distance')
-    env = PandaReacherEarlyTerminateEnv()
-    rrt_controller = RRTController()
-    env_kernel = ReachingEnvKernelNormal()
-    rrt_kernel = RRTKernelNormal()
-    samples = sample(N=10000, alpha=0.1, prior_file=prior_file, env=env, controller=rrt_controller,
-                     behavior_func=ee_distance_behavior, env_kernel=env_kernel, controller_kernel=rrt_kernel,
-                     target_type='match', target_behavior=0, N_sigma=1000)
-    env_samples, controller_samples, trajectories, behaviors = samples
-    pickle.dump(
-        {'env': env_samples, 'controller': controller_samples, 'trajectory': trajectories, 'behavior': behaviors},
-        open('samples/rrt_min_ee_distance.samples.pkl', 'wb'))
-
-
-@register
-def rrt_min_ee_distance_uniform(prior_file='samples/rrt_prior.pkl'):
-    print('rrt_min_ee_distance_uniform')
-    env = PandaReacherEarlyTerminateEnv()
-    rrt_controller = RRTController()
-    env_kernel = ReachingEnvKernelUniform()
-    rrt_kernel = RRTKernelNormal()
-    samples = sample(N=10000, alpha=0.1, prior_file=prior_file, env=env, controller=rrt_controller,
-                     behavior_func=ee_distance_behavior, env_kernel=env_kernel, controller_kernel=rrt_kernel,
-                     target_type='match', target_behavior=0, N_sigma=1000)
-    env_samples, controller_samples, trajectories, behaviors = samples
-    pickle.dump(
-        {'env': env_samples, 'controller': controller_samples, 'trajectory': trajectories, 'behavior': behaviors},
-        open('samples/rrt_min_ee_distance_uniform.samples.pkl', 'wb'))
-
-
-@register
-def rl_max_illegibility(prior_file='samples/rl_prior.pkl'):
-    print('rl_max_illegibility')
-    env = PandaReacherEarlyTerminateEnv()
-    rl_controller = RLController()
-    env_kernel = ReachingEnvKernelNormal()
-    rl_kernel = TransitionKernel()
-    samples = sample(N=10000, alpha=0.1, prior_file=prior_file, env=env, controller=rl_controller,
-                     behavior_func=illegibility_behavior, env_kernel=env_kernel, controller_kernel=rl_kernel,
-                     target_type='maximal', N_sigma=1000, sigma_override=None)
-    env_samples, controller_samples, trajectories, behaviors = samples
-    pickle.dump(
-        {'env': env_samples, 'controller': controller_samples, 'trajectory': trajectories, 'behavior': behaviors},
-        open('samples/rl_max_illegibility.samples.pkl', 'wb'))
-
-
-@register
-def rrt_max_illegibility(prior_file='samples/rrt_prior.pkl'):
-    print('rrt_max_illegibility')
-    env = PandaReacherEarlyTerminateEnv()
-    rrt_controller = RRTController()
-    env_kernel = ReachingEnvKernelNormal()
-    rrt_kernel = RRTKernelNormal()
-    samples = sample(N=10000, alpha=0.99, prior_file=prior_file, env=env, controller=rrt_controller,
-                     behavior_func=illegibility_behavior, env_kernel=env_kernel, controller_kernel=rrt_kernel,
-                     target_type='maximal', N_sigma=1000, sigma_override=None)
-    env_samples, controller_samples, trajectories, behaviors = samples
-    pickle.dump(
-        {'env': env_samples, 'controller': controller_samples, 'trajectory': trajectories, 'behavior': behaviors},
-        open('samples/rrt_max_illegibility.samples.pkl', 'wb'))
-
-
-@register
-def rrt_max_illegibility_uniform(prior_file='samples/rrt_prior.pkl'):
-    print('rrt_max_illegibility')
-    env = PandaReacherEarlyTerminateEnv()
-    rrt_controller = RRTController()
-    env_kernel = ReachingEnvKernelUniform()
-    rrt_kernel = RRTKernelNormal()
-    samples = sample(N=10000, alpha=0.1, prior_file=prior_file, env=env, controller=rrt_controller,
-                     behavior_func=illegibility_behavior, env_kernel=env_kernel, controller_kernel=rrt_kernel,
-                     target_type='maximal', N_sigma=1000, sigma_override=None)
-    env_samples, controller_samples, trajectories, behaviors = samples
-    pickle.dump(
-        {'env': env_samples, 'controller': controller_samples, 'trajectory': trajectories, 'behavior': behaviors},
-        open('samples/rrt_max_illegibility_uniform.samples.pkl', 'wb'))
+def rrt_max_illegibility():
+    name = f'samples/{inspect.currentframe().f_code.co_name}.pkl'
+    samples = sample(N=10000, alpha=0.1, prior_file='samples/rrt_prior.pkl', N_sigma=1000, 
+                     behavior_func=behavior.illegibility_behavior, 
+                     env=PandaEnv(), env_kernel=ReachingEnvKernelNormal(),
+                     controller=RRTController(), controller_kernel=RRTKernelNormal(),
+                     target_type='maximal', save=name)
 
 if __name__ == '__main__':
     if len(sys.argv) == 2:
