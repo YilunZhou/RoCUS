@@ -1,18 +1,10 @@
 # RoCUS: Robot Controller Understanding via Sampling
 
-This is the code repository for [_RoCUS: Robot Controller Understanding via Sampling_](paper/paper.pdf) by Yilun Zhou, Serena Booth, Nadia Figueroa, and Julie Shah, implementing the two problem domains studied in the paper.
+![Comparing 2D Navigation Controllers: RRT, IL, and DS](/figures/compare_controllers.png)
 
-## Paper, Supplemental, and Video  
-[paper/paper.pdf](paper/paper.pdf) has the full paper including supplementary materials. 
-
-[paper/supplementary.pdf](paper/supplementary.pdf) has only the supplementary materials. 
-
-YouTube Video: [https://youtu.be/IZigHZ4Gvf4](https://youtu.be/IZigHZ4Gvf4)
-
+This is the code repository for the CoRL 2021 paper [_RoCUS: Robot Controller Understanding via Sampling by Yilun Zhou, Serena Booth, Nadia Figueroa and Julie Shah_](https://arxiv.org/pdf/2012.13615.pdf). A brief video summary is available [here](https://youtu.be/IZigHZ4Gvf4).
 
 ## Codebase
-
-![Comparing 2D Navigation Controllers: RRT, IL, and DS](/figures/compare_controllers.png)
 
 * In `2d_navigation`, a robot needs to navigate from the starting to the target position while avoiding irregularly shaped obstacles. Three controllers are implemented: rapidly-exploring random tree, dynamical system, and deep imitation learning.
 * In `7dof_arm_reaching`, a 7 degree-of-freedom (DoF) Franka Panda robot arm mounted on the side of a table needs to reach to a specific location on the table while avoiding a T-shaped divider. Three controllers are implemented: rapidly-exploring random tree, dynamical system, and deep reinforcement learning.
@@ -32,5 +24,16 @@ This domain additionally depends on [`klampt`](http://motion.cs.illinois.edu/sof
 
 The recommended way to install `pybullet-gym` is in the "editable mode", via `pip install -e`. This package contains a large number of robots, but not the Franka Panda Arm that we use. In addition, since `pybullet-gym` is not officially archived in [PyPI](https://pypi.org/) and to prevent package collision in case that you already have `pybullet-gym` installed, we provide a custom package called [`pybullet-gym-rocus`](7dof_arm_reaching/pybullet-gym-rocus/) that can be installed side by side with `pybullet-gym` and contains only the Franka Panda environment required for this code. Please see [`7dof_arm_reaching/pybullet-gym-rocus/README.md`](7dof_arm_reaching/pybullet-gym-rocus/README.md) for detailed installation instruction.
 
-## Questions? 
-Please contact us at `{yilun, serenabooth, nadiafig, julie_a_shah}@csail.mit.edu`.
+## Contact and Citation
+For any questions, please contact us at `{yilun, serenabooth, nadiafig, julie_a_shah}@csail.mit.edu`. The paper can be cited as
+```
+@inproceedings{zhou2021rocus,
+  title = {RoCUS: Robot Controller Understanding via Sampling},
+  author = {Zhou, Yilun and Booth, Serena and Figueroa, Nadia and Shah, Julie},
+  booktitle = {Proceedings of the 5th Conference on Robot Learning},
+  year = {2021},
+  series = {Proceedings of Machine Learning Research},
+  month = {Nov},
+  publisher = {PMLR}
+}
+```
