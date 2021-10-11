@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <title>RoCUS</title>
+
+    <style>
+      code {
+        font-family: Consolas,"courier new";
+        color: black;
+        font-size: 14px;
+      }
+      </style>
+  </head>
+  <body>
+    <h2 style="text-align: center; margin-bottom: 5px; margin-top: 30px;">RoCUS: Robot Controller Understanding by Sampling</h2>
+    <h5 style="text-align: center; margin-bottom: 5px; margin-top: 20px;">
+      <a href="https://yilun.scripts.mit.edu/">Yilun Zhou</a>,
+      <a href="http://www.slbooth.com/">Serena Booth</a>,
+      <a href="https://nbfigueroa.github.io/">Nadia Figueroa</a>,
+      <a href="https://interactive.mit.edu/">Julie Shah</a>
+    </h5>
+    <h6 style="text-align: center; margin-bottom: 5px; margin-top: 10px;">
+      MIT CSAIL
+    </h6>
+    <h6 style="text-align: center; margin-bottom: 20px; margin-top: 10px;">
+      [<a href="https://arxiv.org/pdf/2012.13615.pdf">Paper PDF</a>] &nbsp;&nbsp;
+      [<a href="">Poster PDF</a>] &nbsp;&nbsp;
+      [<a href="https://openreview.net/forum?id=5P_3bRWiRsF">OpenReview</a>] &nbsp;&nbsp;
+      [<a href="https://github.com/YilunZhou/RoCUS">GitHub Repo</a>]</h6>
+    <div class="container">
+      <div class="col col-12 mb-4">
+        <div class='row'>
+        <div class="col col-5">
+        <iframe width="100%", height="100%", src="https://www.youtube.com/embed/IZigHZ4Gvf4" title="YouTube video player"
+          frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+        </div>
+        <div class="col col-7">
+          <div class="card bg-light">
+            <div class="card-body" style="padding: 10px">
+                <code>
+                  @inproceedings{zhou2021rocus,<br>
+                  &nbsp;&nbsp;title = {RoCUS: Robot Controller Understanding via Sampling},<br>
+                  &nbsp;&nbsp;author = {Zhou, Yilun and Booth, Serena and Figueroa, Nadia and Shah, Julie},<br>
+                  &nbsp;&nbsp;booktitle = {Proceedings of the 5th Conference on Robot Learning},<br>
+                  &nbsp;&nbsp;year = {2021},<br>
+                  &nbsp;&nbsp;series = {Proceedings of Machine Learning Research},<br>
+                  &nbsp;&nbsp;month = {Nov},<br>
+                  &nbsp;&nbsp;publisher = {PMLR}<br>
+                  }
+                </code>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      <div class='col col-12'>
+        <p style="text-align: justify; text-justify: inter-word;">
+          <b>TLDR:</b> Robot controllers are increasingly complex to support harder and more diverse task requirements,
+          but unintended side effects frequently emerge, potentially leading to costly failures. How to comprehensively
+          test a controller and gain a holistic understanding prior to deployment? Use RoCUS! It elicits instances
+          highlighting a specified behavior, which can then be inspected for systematic
+          patterns or analyzed using interpretability tools.
+        </p>
+        <p style="text-align: justify; text-justify: inter-word;">
+          <b>Abstract:</b> As robots are deployed in complex situations, engineers and end users must develop a holistic
+          understanding of their behaviors, capabilities, and limitations. Some behaviors are directly
+          optimized by the objective function; typically these include success rate, completion time or
+          energy consumption. Other behaviors — e.g., collision avoidance, trajectory smoothness or motion
+          legibility — are typically emergent but equally important for safe and trustworthy deployment.
+          Designing an objective which optimizes every aspect of robot behavior is hard, so we instead propose
+          a method for systematic analysis of exhibited behaviors. RoCUS is a Bayesian sampling-based method
+          to find situations where the robot controller exhibits user-specified behaviors, for example, highly
+          jerky motions. We use RoCUS to analyze three controller classes (deep learning models, rapidly
+          exploring random trees and dynamical system formulations) on two domains (2D navigation and a 7
+          degree-of-freedom arm reaching), and uncover insights to further our understanding of these controllers
+          and ultimately improve their designs.
+        </p>
+        <p style="text-align: justify; text-justify: inter-word; margin-bottom: 0px">
+          <b>Related Work</b>
+          <ul>
+            <li> <a href="http://www.slbooth.com/BayesTrex_files/BayesTrex.html">Bayes-TrEx</a>:
+              Our prior work that proposed the notion of <i>transparency-by-example</i> and its
+              Bayesian sampling formulation, from which RoCUS adapts to be compatible with practical
+              requirements of robotic evaluations.
+          </ul>
+        </p>
+      </div>
+      <h3 style="text-align: center; margin-bottom: 15px; margin-top: 30px;">Team</h3>
+      <div class="col col-12 mb-4">
+        <div class='row'>
+          <div class="col col-3" style="text-align: center">
+            <img src="imgs/yilun.jpg" width="100%" style="margin-bottom: 5px">
+            <a href="https://yilun.scripts.mit.edu/">Yilun Zhou</a><br>
+            PhD Student, MIT<br>
+            <a href = "mailto:yilun@csail.mit.edu">yilun@csail.mit.edu</a>
+          </div>
+          <div class="col col-3" style="text-align: center">
+            <img src="imgs/serena.png" width="100%" style="margin-bottom: 5px">
+            <a href="http://www.slbooth.com/">Serena Booth</a><br>
+            PhD Student, MIT<br>
+            <a href = "mailto:serenabooth@csail.mit.edu">serenabooth@csail.mit.edu</a>
+          </div>
+          <div class="col col-3" style="text-align: center">
+            <img src="imgs/nadia.jpg" width="100%" style="margin-bottom: 5px">
+            <a href="https://nbfigueroa.github.io/">Nadia Figueroa</a><br>
+            PostDoc, MIT<br>
+            <a href = "mailto:nadiafig@csail.mit.edu">nadiafig@csail.mit.edu</a>
+          </div>
+          <div class="col col-3" style="text-align: center">
+            <img src="imgs/julie.jpg" width="100%" style="margin-bottom: 5px">
+            <a href="https://interactive.mit.edu/">Julie Shah</a><br>
+            Professor, MIT<br>
+            <a href = "mailto:julie_a_shah@csail.mit.edu">julie_a_shah@csail.mit.edu</a>
+          </div>
+        </div>
+      </div>
+      <div class="col col-12 mb-5">
+        <div class='row'>
+          This research is supported by the National Science Foundation (NSF) under the grant IIS-1830282.
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
